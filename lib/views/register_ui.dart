@@ -1,6 +1,6 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:money_tracking_app/constants/color_constant.dart';
 
@@ -12,6 +12,28 @@ class RegisterUi extends StatefulWidget {
 }
 
 class _RegisterUiState extends State<RegisterUi> {
+  DateTime? selectedDate;
+
+  Future<void> _pickDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(1925),
+      lastDate: DateTime(2025),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  String get formattedDate {
+    final date = selectedDate ?? DateTime.now();
+    return DateFormat('yyyy-MM-dd').format(date);
+  }
+
   bool isVislable = true;
   TextEditingController userFullnameCtrl = TextEditingController(text: '');
   TextEditingController birthdateCtrl = TextEditingController(text: '');
@@ -121,8 +143,28 @@ class _RegisterUiState extends State<RegisterUi> {
                       _buildTextField(
                           'ชื่อ-สกุล', 'YOUR FULLNAME', userFullnameCtrl),
                       SizedBox(height: 15),
-                      _buildTextField(
-                          'วัน/เดือน/ปี เกิด', '(DD/MM/YYYY)', birthdateCtrl),
+                      TextFormField(
+                        controller: birthdateCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'วันเดือนปีเกิด',
+                          hintText: 'Your BirthDay',
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              _pickDate();
+
+                              if (selectedDate != null) {
+                                setState(() {
+                                  birthdateCtrl.text = formattedDate;
+                                });
+                              }
+                            },
+                            icon: Icon(Icons.calendar_month_outlined),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 15),
                       _buildTextField(
                         'ชื่อผู้ใช้',
@@ -134,9 +176,9 @@ class _RegisterUiState extends State<RegisterUi> {
                         obscureText: isVislable,
                         controller: passwordCtrl,
                         decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.lock_outlined),
                           labelText: 'รหัสผ่าน',
                           hintText: 'PASSWORD',
-                          prefixIcon: Icon(Icons.lock),
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
