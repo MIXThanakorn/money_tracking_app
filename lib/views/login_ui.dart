@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_tracking_app/constants/color_constant.dart';
+import 'package:money_tracking_app/models/user.dart';
+import 'package:money_tracking_app/service/user_api.dart';
 import 'package:money_tracking_app/views/home_ui.dart';
 
 class LoginUi extends StatefulWidget {
@@ -14,6 +16,17 @@ class _LoginUiState extends State<LoginUi> {
   TextEditingController passwordCtrl = TextEditingController(text: '');
 
   bool isVislable = true;
+
+  showwarningsnackbar(context, mes) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        mes,
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: 2),
+      backgroundColor: Colors.red,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +82,14 @@ class _LoginUiState extends State<LoginUi> {
                         decoration: InputDecoration(
                           labelText: 'ชื่อผู้ใช้',
                           hintText: 'USERNAME',
-                          border: OutlineInputBorder(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -93,7 +113,14 @@ class _LoginUiState extends State<LoginUi> {
                                 ? Icons.remove_red_eye_outlined
                                 : Icons.visibility_sharp),
                           ),
-                          border: OutlineInputBorder(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -110,11 +137,29 @@ class _LoginUiState extends State<LoginUi> {
                                 borderRadius: BorderRadius.circular(50),
                               ),
                               backgroundColor: Color(mainColor)),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomeUi()));
+                          onPressed: () async {
+                            if (userNameCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(
+                                  context, 'กรุณากรอกชื่อผู้ใช้');
+                            } else if (passwordCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(context, 'กรุณากรอกรหัสผ่าน');
+                            } else {
+                              User user = User(
+                                userName: userNameCtrl.text,
+                                userPassword: passwordCtrl.text,
+                              );
+                              user = await UserAPI().checkLogin(user);
+                              if (user.userID != null) {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            HomeUi(user: User())));
+                              } else {
+                                showwarningsnackbar(
+                                    context, 'Incorrect Username or Password');
+                              }
+                            }
                           },
                           child: Text(
                             'เข้าใช้งาน',

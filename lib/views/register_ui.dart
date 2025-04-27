@@ -1,8 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:money_tracking_app/constants/color_constant.dart';
+import 'package:money_tracking_app/models/user.dart';
+import 'package:money_tracking_app/service/user_api.dart';
 
 class RegisterUi extends StatefulWidget {
   const RegisterUi({super.key});
@@ -18,24 +22,26 @@ class _RegisterUiState extends State<RegisterUi> {
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1925),
-      lastDate: DateTime(2025),
+      firstDate: DateTime(1960),
+      lastDate: DateTime(2026),
     );
 
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        birthdateCtrl.text = formattedDate;
       });
     }
   }
 
   String get formattedDate {
     final date = selectedDate ?? DateTime.now();
-    return DateFormat('yyyy-MM-dd').format(date);
+    return DateFormat('dd/MM/yyyy').format(date);
   }
 
   bool isVislable = true;
-  TextEditingController userFullnameCtrl = TextEditingController(text: '');
+
+  TextEditingController userFullNameCtrl = TextEditingController(text: '');
   TextEditingController birthdateCtrl = TextEditingController(text: '');
   TextEditingController userNameCtrl = TextEditingController(text: '');
   TextEditingController passwordCtrl = TextEditingController(text: '');
@@ -141,9 +147,10 @@ class _RegisterUiState extends State<RegisterUi> {
                         ),
                       ),
                       _buildTextField(
-                          'ชื่อ-สกุล', 'YOUR FULLNAME', userFullnameCtrl),
+                          'ชื่อ-สกุล', 'YOUR FULLNAME', userFullNameCtrl),
                       SizedBox(height: 15),
                       TextFormField(
+                        keyboardType: TextInputType.none,
                         controller: birthdateCtrl,
                         decoration: InputDecoration(
                           labelText: 'วันเดือนปีเกิด',
@@ -151,16 +158,17 @@ class _RegisterUiState extends State<RegisterUi> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               _pickDate();
-
-                              if (selectedDate != null) {
-                                setState(() {
-                                  birthdateCtrl.text = formattedDate;
-                                });
-                              }
                             },
                             icon: Icon(Icons.calendar_month_outlined),
                           ),
-                          border: OutlineInputBorder(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -189,7 +197,14 @@ class _RegisterUiState extends State<RegisterUi> {
                                 ? Icons.remove_red_eye_outlined
                                 : Icons.visibility_sharp),
                           ),
-                          border: OutlineInputBorder(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Color(mainColor), width: 2.0),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -204,10 +219,35 @@ class _RegisterUiState extends State<RegisterUi> {
                                 borderRadius: BorderRadius.circular(50),
                               ),
                               backgroundColor: Color(mainColor)),
-                          onPressed: () {
-                            // if (_formKey.currentState!.validate()) {
-                            //   registerUser(context);
-                            // }
+                          onPressed: () async {
+                            if (userFullNameCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(
+                                  context, 'กรุณากรอกชื่อ-สกุล');
+                            } else if (birthdateCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(
+                                  context, 'กรุณากรอกวันเดือนปีเกิด');
+                            } else if (userNameCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(
+                                  context, 'กรุณากรอกชื่อผู้ใช้');
+                            } else if (passwordCtrl.text.trim().isEmpty) {
+                              showwarningsnackbar(context, 'กรุณากรอกรหัสผ่าน');
+                            } else {
+                              User user = User(
+                                userFullName: userFullNameCtrl.text.trim(),
+                                userBirthDate: birthdateCtrl.text.trim(),
+                                userName: userNameCtrl.text.trim(),
+                                userPassword: passwordCtrl.text.trim(),
+                              );
+                              if (await UserAPI()
+                                  .registerUser(user, userFile)) {
+                                showcompletesnackbar(
+                                  context,
+                                  'Registered successfully',
+                                );
+                              } else {
+                                showwarningsnackbar(context, 'Cannot register');
+                              }
+                            }
                           },
                           child: Text(
                             'ลงทะเบียน',
@@ -236,7 +276,12 @@ class _RegisterUiState extends State<RegisterUi> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        border: OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(mainColor), width: 2.0),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(mainColor), width: 2.0),
           borderRadius: BorderRadius.circular(10),
         ),
       ),
