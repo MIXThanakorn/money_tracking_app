@@ -5,8 +5,10 @@ import 'package:money_tracking_app/models/money.dart';
 import 'package:money_tracking_app/service/money_api.dart';
 
 class SubHome01Ui extends StatefulWidget {
-  Widget? user;
-  SubHome01Ui({super.key, this.user});
+  final int? userID;
+  Function refreshData;
+
+  SubHome01Ui({super.key, required this.userID, required this.refreshData});
 
   @override
   State<SubHome01Ui> createState() => _SubHome01UiState();
@@ -167,14 +169,18 @@ class _SubHome01UiState extends State<SubHome01Ui> {
                         } else {
                           Money money = Money(
                             moneyDetail: moneyDetailCtrl.text,
-                            moneyInOut: double.parse(moneyInCtrl.text),
+                            moneyInOut: double.parse(moneyInCtrl.text.trim()),
                             moneyDate: moneyDateCtrl.text,
                             moneyType: 1,
-                            userID: 1,
+                            userID: widget.userID,
                           );
                           if (await MoneyAPI().addMoney(money)) {
                             showcompletesnackbar(
                                 context, 'บันทึกเงินเข้าเรียบร้อย');
+                            moneyDetailCtrl.clear();
+                            moneyInCtrl.clear();
+                            moneyDateCtrl.clear();
+                            widget.refreshData();
                           } else {
                             showwarningsnackbar(
                                 context, 'บันทึกเงินเข้าไม่สําเร็จ');

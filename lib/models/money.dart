@@ -15,7 +15,7 @@ class Money {
   Money.fromJson(Map<String, dynamic> json) {
     moneyDetail = json['moneyDetail'];
     moneyDate = json['moneyDate'];
-    moneyInOut = json['moneyInOut'];
+    moneyInOut = (json['moneyInOut'] as num?)?.toDouble();
     moneyType = json['moneyType'];
     userID = json['userID'];
   }

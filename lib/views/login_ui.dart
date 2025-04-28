@@ -153,8 +153,11 @@ class _LoginUiState extends State<LoginUi> {
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            HomeUi(user: User())));
+                                        builder: (context) => HomeUi(
+                                            userName: user.userFullName,
+                                            userImage: user.userImage,
+                                            userID: int.parse(
+                                                user.userID.toString()))));
                               } else {
                                 showwarningsnackbar(
                                     context, 'Incorrect Username or Password');
