@@ -88,7 +88,7 @@ class _SubHome03UiState extends State<SubHome03Ui> {
                   TextFormField(
                     controller: moneyDetailCtrl,
                     decoration: InputDecoration(
-                      labelText: 'รายการเงินเข้า',
+                      labelText: 'รายการเงินออก',
                       hintText: 'DETAILS',
                       enabledBorder: OutlineInputBorder(
                         borderSide:
@@ -188,7 +188,7 @@ class _SubHome03UiState extends State<SubHome03Ui> {
                         }
                       },
                       child: Text(
-                        'บันทึกเงินเข้า',
+                        'บันทึกเงินออก',
                         style: TextStyle(
                             fontSize: 20,
                             color: Colors.white,

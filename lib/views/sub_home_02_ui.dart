@@ -73,7 +73,7 @@ class _SubHome02UiState extends State<SubHome02Ui> {
                           title: Text(
                             '${snapshot.data![index].moneyDetail}',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -83,17 +83,17 @@ class _SubHome02UiState extends State<SubHome02Ui> {
                           ),
                           trailing: snapshot.data![index].moneyType == 1
                               ? Text(
-                                  "${snapshot.data![index].moneyInOut}",
+                                  "+${NumberFormat('#,###').format(snapshot.data![index].moneyInOut)}",
                                   style: TextStyle(
                                     color: Colors.green,
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   ),
                                 )
                               : Text(
-                                  "${snapshot.data![index].moneyInOut}",
+                                  "-${NumberFormat('#,###').format(snapshot.data![index].moneyInOut)}",
                                   style: TextStyle(
                                     color: Colors.red,
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   ),
                                 ),
                         );

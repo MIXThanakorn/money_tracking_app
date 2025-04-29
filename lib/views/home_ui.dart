@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:money_tracking_app/constants/baseurl_constanst.dart';
 import 'package:money_tracking_app/constants/color_constant.dart';
 import 'package:money_tracking_app/models/money.dart';
@@ -63,22 +64,22 @@ class _HomeUiState extends State<HomeUi> {
         actions: [
           ClipRRect(
               borderRadius: BorderRadius.circular(50),
-              child: widget.userImage == null
+              child: widget.userImage!.isEmpty == true
                   ? Image.asset(
                       'assets/images/user_camera.png',
-                      width: 50,
-                      height: 50,
+                      width: 40,
+                      height: 40,
                       fit: BoxFit.cover,
                     )
                   : Image.network(
                       '$baseUrl/images/users/${widget.userImage}',
-                      width: 50,
-                      height: 50,
+                      width: 40,
+                      height: 40,
                       fit: BoxFit.cover,
                     )),
           SizedBox(width: 25),
         ],
-        backgroundColor: Color(mainColor),
+        backgroundColor: Color(subColor),
       ),
       backgroundColor: Colors.white,
       bottomNavigationBar: Theme(
@@ -111,118 +112,147 @@ class _HomeUiState extends State<HomeUi> {
               ),
             ]),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-        child: Column(
-          children: [
-            FutureBuilder(
-                future: moneyAllData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    ); // แสดง loading
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    // ตัวแปรนี้จะทำการคำนวณยอดเงินคงเหลือ
-                    snapshot.data!.forEach((x) {
-                      if (x.moneyType == 1) {
-                        totalMoney += x.moneyInOut!;
-                        totalIncome += x.moneyInOut!;
-                      } else {
-                        totalExpanse += x.moneyInOut!;
-                        totalMoney -= x.moneyInOut!;
-                      }
-                    });
-                    return Container(
-                      width: double.infinity,
-                      height: 200,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 25),
-                      decoration: BoxDecoration(
-                        color: Color(mainColor),
-                        borderRadius: BorderRadius.circular(12),
+      body: Column(
+        children: [
+          FutureBuilder(
+              future: moneyAllData,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  ); // แสดง loading
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('เกิดข้อผิดพลาด: ${snapshot.error}'),
+                  );
+                } else if (snapshot.hasData) {
+                  // ตัวแปรนี้จะทำการคำนวณยอดเงินคงเหลือ
+                  snapshot.data!.forEach((x) {
+                    if (x.moneyType == 1) {
+                      totalMoney += x.moneyInOut!;
+                      totalIncome += x.moneyInOut!;
+                    } else {
+                      totalExpanse += x.moneyInOut!;
+                      totalMoney -= x.moneyInOut!;
+                    }
+                  });
+                  return Stack(
+                    children: <Widget>[
+                      Container(
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Color(subColor),
+                          borderRadius: BorderRadius.vertical(
+                              bottom: Radius.circular(24)),
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "ยอดเงินคงเหลือ",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          Text(
-                            "$totalMoney บาท",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Material(
+                            elevation: 8,
+                            color: Color(mainColor),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.93,
+                              height: 200,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 25, vertical: 25),
+                              decoration: BoxDecoration(
+                                color: Color(mainColor),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.arrow_circle_down_outlined,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "ยอดเงินเข้าร่วม",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    "ยอดเงินคงเหลือ",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
                                   ),
                                   Text(
-                                    "$totalIncome บาท",
+                                    "${NumberFormat("#,###").format(totalMoney)} บาท",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 18),
                                   ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
+                                  SizedBox(height: 20),
                                   Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        "ยอดเงินออกร่วม",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons
+                                                    .arrow_circle_down_outlined,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "ยอดเงินเข้าร่วม",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "${NumberFormat('#,###').format(totalIncome)}  บาท",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(width: 5),
-                                      Icon(
-                                        Icons.arrow_circle_up_outlined,
-                                        color: Colors.white,
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "ยอดเงินออกร่วม",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              SizedBox(width: 5),
+                                              Icon(
+                                                Icons.arrow_circle_up_outlined,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "${NumberFormat('#,###').format(totalExpanse)}  บาท",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Text(
-                                    "$totalExpanse บาท",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 18),
-                                  ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    );
-                  }
-                  return Center(child: Text('ไม่มีข้อมูล'));
-                }),
-            Expanded(child: showUI[_selectedIndex]),
-          ],
-        ),
+                    ],
+                  );
+                }
+                return Center(child: Text('ไม่มีข้อมูล'));
+              }),
+          Expanded(child: showUI[_selectedIndex]),
+        ],
       ),
     );
   }
